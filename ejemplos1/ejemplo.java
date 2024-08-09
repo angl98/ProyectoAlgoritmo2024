@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 /**
  *
- * @author angel
+ * @author angel MayCar
  * @since 8/2/2024
  * Codificacion de resolucion de problemas
  */
