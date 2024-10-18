@@ -50,7 +50,7 @@ public class Administrador {
                 if (us.equals(usuarioReg) && co.equals(contraReg)) {
                     System.out.println("Inicio de sesion exitoso.");
                     inicioCorrecto = true; // Salir del bucle
-                    menuAdmin();
+                    menuAdmin(scan);
                 } else {
                     System.out.println("Usuario o contrasenia incorrectos. Vuelva a intentarlo.");
                 }
@@ -58,9 +58,20 @@ public class Administrador {
         }
         return false; 
     }
-        public static void menuAdmin(){
-            
-            
+        public static void menuAdmin(Scanner casos) throws IOException{ 
+            System.out.println("--Bienvendio al menu de opcciones--");
+            System.out.println("1. *PRODUCTOS* ");
+            int caso = casos.nextInt();
+            casos.nextLine();
+                    
+            switch(caso){
+                
+                case 1:
+                    Producto.producto();
+                    break;
+                case 2:
+                    
+            }
         }
 }
 
