@@ -1,5 +1,1 @@
-
-Electronica | Almacenamiento de todos los productos electronicos de la empresa. | 
-Ropa | jijija | 
-Juguetes | hola | 
-Calzado | Calzado de todo tipo ingresado a la tienda | 
+Electronicos | Productos Pertenecientes a la electronica | 

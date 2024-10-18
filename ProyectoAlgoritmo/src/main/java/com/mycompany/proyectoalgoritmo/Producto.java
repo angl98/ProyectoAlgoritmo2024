@@ -1,16 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.mycompany.proyectoalgoritmo;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import static java.util.stream.Gatherers.scan;
 
 /**
  *
@@ -25,11 +24,12 @@ public class Producto {
         while(!salir){
         System.out.println("[1] Crear Categorias: ");
         System.out.println("[2] Agregar producto: ");
-        System.out.println("[3] Dar  de alta o baja un producto: ");
+        System.out.println("[3] Dar baja un producto: ");
         System.out.println("[4] Modificar producto: ");
         System.out.println("[5] Salir");
         
         int Produ = scan.nextInt();
+        scan.nextLine(); //quitar cualquier salto de linea
         
         switch(Produ){
             case 1:
@@ -37,6 +37,12 @@ public class Producto {
                break;
             case 2:
                 AgregarProducto(scan);
+                break;
+            case 3:
+                DarDeBaja(scan);
+                break;
+            case 4: 
+                ModProducto(scan);
             case 5:
                 salir= true;
                 System.out.println("Saliendo al menu principal ");
@@ -46,6 +52,12 @@ public class Producto {
            
         Administrador.menuAdmin(scan);
     }
+        
+        
+        
+        
+        
+        
     public static void CrearCate(Scanner scan) throws IOException{
   
     File Categoria = new File("Categoria.txt");
@@ -93,6 +105,11 @@ public class Producto {
     }
 
             
+            
+            
+            
+            
+            
                 public static void AgregarProducto(Scanner scan) throws IOException {
         File Producto = new File("Producto.txt");
 
@@ -111,7 +128,8 @@ public class Producto {
         productoData[0][1] = scan.nextLine();
 
         System.out.println("Seleccione una categoria para el producto: ");
-        mostrarCategorias();  // Mostrar las categorías disponibles
+        // Mostrar las categorías disponibles
+        mostrarCategorias();  
 
         System.out.println("Ingrese la categoria: ");
         productoData[0][2] = scan.nextLine();
@@ -149,7 +167,7 @@ public class Producto {
 
         // Guardar en el archivo de productos
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(Producto, true))) {
-            writer.write("Codigo " + codigoUnico + " | Nombre: " + productoData[0][0] +
+            writer.write(codigoUnico + " | Nombre: " + productoData[0][0] +
                     " | Descripcion: " + productoData[0][1] +
                     " | Categoria: " + productoData[0][2] +
                     " | Color: " + productoData[0][3] +
@@ -161,6 +179,7 @@ public class Producto {
         
                                                                                 }
         
+                
 
     // metodo para mostrar todas las categorias disponibles
     public static void mostrarCategorias() throws IOException {
@@ -180,8 +199,129 @@ public class Producto {
             }
         }
     }
+    
+    
+    
             
-           
+         public static void DarDeBaja(Scanner scan) throws FileNotFoundException, IOException{
+             File Producto = new File("Producto.txt");
+             File ArchTemp = new File("ArchTemp.txt");
+             
+             if (!Producto.exists()){
+                System.out.println("No hay Productos Disponibles.");
+                return;
+                                     }  
+             System.out.println("Ingrese el codigo del producto que quiere dar de baja: ");
+             String code = scan.nextLine().trim();
+             
+                try (BufferedReader reader = new BufferedReader(new FileReader(Producto))){
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp));
+                        
+                    String linea;
+                    
+                    boolean buscado = false;
+                    
+                    while((linea = reader.readLine()) != null){
+                        if(linea.startsWith("Codigo: "+ code)){
+                            System.out.println("Producto con codigo: "+code + "--Esta dado de baja--");
+                            buscado = true;
+                        }
+                        else{
+                            writer.write(linea);
+                            writer.newLine();
+                        }
+                }
+                    if (!buscado) {
+        System.out.println("--Producto no encontrado--");
+        // Eliminar el archivo temporal porque no se usará
+        ArchTemp.delete();
+    } else {
+        // Reemplazar el archivo original por el temporal
+        if (Producto.delete() && ArchTemp.renameTo(Producto)) {
+            System.out.println("--Producto dado de baja exitosamente--");
+        } else {
+            System.out.println("--Error al dar de baja el producto--");
+        }
+    }
+         }
+}                
+         
+         
+         
+         
+         public static void ModProducto (Scanner scan) throws IOException{
+             
+                File Producto = new File("Producto.txt");
+                File ArchTemp = new File("ArchTemp");
+                
+            if(!Producto.exists()){
+                System.out.println("No hay producto dispobible");
+                return;
+            }
+            System.out.println("Productos disponibles: ");
+              try (BufferedReader reader = new BufferedReader(new FileReader(Producto))){
+                  String linea;
+                  while((linea= reader.readLine()) !=null){
+                      System.out.println(linea);
+                  }
+              }
+            
+            System.out.println("Ingrese el codigo del producto que desea Modificar: ");
+                String CodeProdu = scan.nextLine();
+                
+                //almacenar 1 producto como maximo de 6 caracteristicas(digitos)
+                
+                String[][] productoInf = new String[1][6];
+                
+               try (BufferedReader reader = new BufferedReader(new FileReader(Producto))){
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp));
+                    
+                    String linea;
+                    boolean buscado = false;
+                    
+                        while((linea= reader.readLine()) !=null){
+                            if(linea.startsWith("El Codigo: "+ CodeProdu)){
+                                buscado = false;
+                                System.out.println("Ingrese los nuevos datos del producto: ");
+                                
+                                System.out.println("Nuevo nombre: ");
+                                productoInf[0][0]= scan.nextLine();
+                                System.out.println("Nueva Desc: ");
+                                productoInf[0][1]= scan.nextLine();
+                                System.out.println("Nueva categoria: ");
+                                productoInf[0][2]= scan.nextLine();
+                                System.out.println("Nuevo color: ");
+                                productoInf[0][3]= scan.nextLine();
+                                System.out.println("Nueva talla: ");
+                                productoInf[0][4]= scan.nextLine();
+                                System.out.println("Nuevo precio: ");
+                                productoInf[0][5]= scan.nextLine();
+                                
+                                //Escribir lo leido para el archivo temporal
+                                writer.write("| Codigo: "+ CodeProdu+ "| Nombre: "+ productoInf[0][0]+ "| Descripcion: "+ productoInf[0][1]+ "|Categoria: "+ productoInf[0][2]+"| Color: "+ productoInf[0][3]+"| Talla: "+ productoInf[0][4]+"| Precio: "+ productoInf[0][5]);
+                                writer.newLine();
+                            } else{
+                                writer.write(linea);
+                                writer.newLine();
+                            }
+                        }
+                                if(!buscado){
+                                    System.out.println("--Producto no encontrado--");
+                                }
+               }
+               
+               //cambiar el archivo temporal por el original.
+               
+               if(Producto.delete()&& ArchTemp.renameTo(Producto)){
+                   System.out.println("--El producto fue modificado exitosamente--");                   
+               } else {
+                   System.out.println("--Error al modificar el producto--");
+
+               }
+
+            
+         }
+               
 }
             
 

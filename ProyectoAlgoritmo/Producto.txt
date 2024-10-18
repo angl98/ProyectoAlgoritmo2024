@@ -1,1 +1,2 @@
-Código: 0001 | Nombre: Jordan 1 retro | Descripción: Jordan 1 retro del año 1999 | Categoría: Calzado | Color: Blanco | Talla: 45 | Precio: 2000
+1 | Nombre: Xbox 360 | Descripcion: Electronico gamer | Categoria: Electronicos | Color: blanco | Talla: ??? | Precio: 1600
+1 | Nombre: Xbox 360 | Descripcion: Hola | Categoria: Electronicos | Color: yellow | Talla: ??? | Precio: 1600
