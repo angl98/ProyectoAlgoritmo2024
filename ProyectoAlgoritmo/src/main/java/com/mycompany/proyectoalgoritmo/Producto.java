@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
-import static java.util.stream.Gatherers.scan;
+
 
 /**
  *
@@ -17,7 +17,7 @@ import static java.util.stream.Gatherers.scan;
  */
 public class Producto {
    
-        public static void producto() throws IOException{
+      public static void producto(File Categoria, File Producto) throws IOException{
         Scanner scan = new Scanner(System.in);
         boolean salir = false;
         
@@ -29,20 +29,19 @@ public class Producto {
         System.out.println("[5] Salir");
         
         int Produ = scan.nextInt();
-        scan.nextLine(); //quitar cualquier salto de linea
-        
         switch(Produ){
             case 1:
-               CrearCate(scan);
+               CrearCate(scan, Categoria);
                break;
             case 2:
-                AgregarProducto(scan);
+                AgregarProducto(scan, Categoria, Producto);
                 break;
             case 3:
-                DarDeBaja(scan);
+                DarDeBaja(scan, Producto);
                 break;
             case 4: 
-                ModProducto(scan);
+                ModProducto(scan, Producto);
+                break;
             case 5:
                 salir= true;
                 System.out.println("Saliendo al menu principal ");
@@ -50,7 +49,7 @@ public class Producto {
                     }
                     }
            
-        Administrador.menuAdmin(scan);
+        Administrador.menuAdmin(scan, Categoria, Producto);
     }
         
         
@@ -58,9 +57,7 @@ public class Producto {
         
         
         
-    public static void CrearCate(Scanner scan) throws IOException{
-  
-    File Categoria = new File("Categoria.txt");
+    public static void CrearCate(Scanner scan, File Categoria) throws IOException{
     
          if (!Categoria.exists()) {
             Categoria.createNewFile();
@@ -110,8 +107,7 @@ public class Producto {
             
             
             
-                public static void AgregarProducto(Scanner scan) throws IOException {
-        File Producto = new File("Producto.txt");
+                public static void AgregarProducto(Scanner scan, File Categoria, File Producto) throws IOException {
 
         if (!Producto.exists()) {
             Producto.createNewFile();
@@ -129,7 +125,7 @@ public class Producto {
 
         System.out.println("Seleccione una categoria para el producto: ");
         // Mostrar las categorías disponibles
-        mostrarCategorias();  
+        mostrarCategorias(Categoria);  
 
         System.out.println("Ingrese la categoria: ");
         productoData[0][2] = scan.nextLine();
@@ -167,7 +163,7 @@ public class Producto {
 
         // Guardar en el archivo de productos
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(Producto, true))) {
-            writer.write(codigoUnico + " | Nombre: " + productoData[0][0] +
+            writer.write("Codigo: "+ codigoUnico + " | Nombre: " + productoData[0][0] +
                     " | Descripcion: " + productoData[0][1] +
                     " | Categoria: " + productoData[0][2] +
                     " | Color: " + productoData[0][3] +
@@ -182,8 +178,7 @@ public class Producto {
                 
 
     // metodo para mostrar todas las categorias disponibles
-    public static void mostrarCategorias() throws IOException {
-        File Categoria = new File("Categoria.txt");
+    public static void mostrarCategorias(File Categoria) throws IOException {
 
         if (!Categoria.exists() || Categoria.length() == 0) {
             System.out.println("--No hay categorais disponibles-- Cree una nueva .");
@@ -195,7 +190,7 @@ public class Producto {
             System.out.println("Categorias disponibles: ");
             while ((linea = reader.readLine()) != null) {
                 String[] datos = linea.split("\\|");
-                System.out.println("- " + datos[0].trim());  // Mostrar solo el nombre de la categorias
+                System.out.println("- " + datos[0].trim());  // Mostrar solo el nombre de la categorias y eliminar los espacios en blanco
             }
         }
     }
@@ -203,126 +198,276 @@ public class Producto {
     
     
             
-         public static void DarDeBaja(Scanner scan) throws FileNotFoundException, IOException{
-             File Producto = new File("Producto.txt");
-             File ArchTemp = new File("ArchTemp.txt");
-             
-             if (!Producto.exists()){
-                System.out.println("No hay Productos Disponibles.");
-                return;
-                                     }  
-             System.out.println("Ingrese el codigo del producto que quiere dar de baja: ");
-             String code = scan.nextLine().trim();
-             
-                try (BufferedReader reader = new BufferedReader(new FileReader(Producto))){
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp));
-                        
-                    String linea;
-                    
-                    boolean buscado = false;
-                    
-                    while((linea = reader.readLine()) != null){
-                        if(linea.startsWith("Codigo: "+ code)){
-                            System.out.println("Producto con codigo: "+code + "--Esta dado de baja--");
-                            buscado = true;
-                        }
-                        else{
-                            writer.write(linea);
-                            writer.newLine();
-                        }
-                }
-                    if (!buscado) {
+     public static void DarDeBaja(Scanner scan, File Producto) throws IOException {
+    File ArchTemp = new File("ArchTemp.txt");
+
+    if (!Producto.exists() && Producto.length() == 0) {
+        System.out.println("No hay Productos Disponibles.");
+        return;
+    }
+
+    System.out.println("Ingrese el codigo del producto que quiere dar de baja: ");
+    String codeInput = scan.nextLine().trim();
+
+    // Verificar si el code ingresado es un numero entero
+    int code;
+    try {
+        code = Integer.parseInt(codeInput);
+    } catch (NumberFormatException a) {
+        System.out.println("El código ingresado no es un numero entero.");
+        return;
+    }
+
+    boolean buscado = false;
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(Producto));
+         BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp))) {
+
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            // Comparar el codigo
+            if (linea.toLowerCase().contains("codigo: " + code)) {
+                System.out.println("Producto con codigo: " + code + " --Está dado de baja--");
+                buscado = true;
+            } else {
+                writer.write(linea);
+                writer.newLine();
+            }
+        }
+    }
+
+    if (!buscado) {
         System.out.println("--Producto no encontrado--");
-        // Eliminar el archivo temporal porque no se usará
-        ArchTemp.delete();
+        ArchTemp.delete(); // Eliminar el archivo temporal
     } else {
-        // Reemplazar el archivo original por el temporal
+        // Reemplaza el archivo original con el temporal
         if (Producto.delete() && ArchTemp.renameTo(Producto)) {
             System.out.println("--Producto dado de baja exitosamente--");
         } else {
             System.out.println("--Error al dar de baja el producto--");
         }
     }
-         }
-}                
-         
-         
-         
-         
-         public static void ModProducto (Scanner scan) throws IOException{
-             
-                File Producto = new File("Producto.txt");
-                File ArchTemp = new File("ArchTemp");
-                
-            if(!Producto.exists()){
-                System.out.println("No hay producto dispobible");
-                return;
-            }
-            System.out.println("Productos disponibles: ");
-              try (BufferedReader reader = new BufferedReader(new FileReader(Producto))){
-                  String linea;
-                  while((linea= reader.readLine()) !=null){
-                      System.out.println(linea);
-                  }
-              }
-            
-            System.out.println("Ingrese el codigo del producto que desea Modificar: ");
-                String CodeProdu = scan.nextLine();
-                
-                //almacenar 1 producto como maximo de 6 caracteristicas(digitos)
-                
-                String[][] productoInf = new String[1][6];
-                
-               try (BufferedReader reader = new BufferedReader(new FileReader(Producto))){
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp));
-                    
-                    String linea;
-                    boolean buscado = false;
-                    
-                        while((linea= reader.readLine()) !=null){
-                            if(linea.startsWith("El Codigo: "+ CodeProdu)){
-                                buscado = false;
-                                System.out.println("Ingrese los nuevos datos del producto: ");
-                                
-                                System.out.println("Nuevo nombre: ");
-                                productoInf[0][0]= scan.nextLine();
-                                System.out.println("Nueva Desc: ");
-                                productoInf[0][1]= scan.nextLine();
-                                System.out.println("Nueva categoria: ");
-                                productoInf[0][2]= scan.nextLine();
-                                System.out.println("Nuevo color: ");
-                                productoInf[0][3]= scan.nextLine();
-                                System.out.println("Nueva talla: ");
-                                productoInf[0][4]= scan.nextLine();
-                                System.out.println("Nuevo precio: ");
-                                productoInf[0][5]= scan.nextLine();
-                                
-                                //Escribir lo leido para el archivo temporal
-                                writer.write("| Codigo: "+ CodeProdu+ "| Nombre: "+ productoInf[0][0]+ "| Descripcion: "+ productoInf[0][1]+ "|Categoria: "+ productoInf[0][2]+"| Color: "+ productoInf[0][3]+"| Talla: "+ productoInf[0][4]+"| Precio: "+ productoInf[0][5]);
-                                writer.newLine();
-                            } else{
-                                writer.write(linea);
-                                writer.newLine();
-                            }
-                        }
-                                if(!buscado){
-                                    System.out.println("--Producto no encontrado--");
-                                }
-               }
-               
-               //cambiar el archivo temporal por el original.
-               
-               if(Producto.delete()&& ArchTemp.renameTo(Producto)){
-                   System.out.println("--El producto fue modificado exitosamente--");                   
-               } else {
-                   System.out.println("--Error al modificar el producto--");
-
-               }
-
-            
-         }
-               
 }
+         
+         
+    
+     
+     
+     
+       public static void ModProducto(Scanner scan, File Producto) throws IOException {
+    // Verificar si el archivo de productos existe
+    if (!Producto.exists()) {
+        System.out.println("No hay productos disponibles.");
+        return;
+    }
+    
+    // Mostrar productos disponibles
+    System.out.println("Productos disponibles:");
+    try (BufferedReader reader = new BufferedReader(new FileReader(Producto))) {
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            System.out.println(linea);
+        }
+    }
+
+    // Solicitar el código del producto a modificar
+    System.out.println("Ingrese el codigo del producto que desea modificar:");
+    String codeProdu = scan.nextLine().trim();
+
+    // Archivo temporal para las modificaciones
+    File ArchTemp = new File("ArchTemp.txt");
+    boolean buscado = false;
+
+    // Abrir el archivo original y el archivo temporal
+    try (BufferedReader reader = new BufferedReader(new FileReader(Producto));
+         BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp))) {
+        
+        String linea;
+        // Leer cada línea del archivo
+        while ((linea = reader.readLine()) != null) {
+            // Si la línea contiene el código del producto a modificar
+            if (linea.startsWith("Codigo: " + codeProdu)) {
+                buscado = true;  // Producto encontrado
+                
+                // Mostrar los datos actuales del producto
+                System.out.println("Producto encontrado: " + linea);
+                System.out.println("Ingrese los nuevos datos del producto:");
+
+                System.out.print("Nuevo nombre: ");
+                String nuevoNombre = scan.nextLine();
+                System.out.print("Nueva descripcion: ");
+                String nuevaDesc = scan.nextLine();
+                System.out.print("Nueva categoria: ");
+                String nuevaCategoria = scan.nextLine();
+                System.out.print("Nuevo color: ");
+                String nuevoColor = scan.nextLine();
+                System.out.print("Nueva talla: ");
+                String nuevaTalla = scan.nextLine();
+                System.out.print("Nuevo precio: ");
+                String nuevoPrecio = scan.nextLine();
+
+                // Reescribir la línea del producto con los nuevos datos
+                String nuevaLinea = "| Codigo: " + codeProdu + " | Nombre: " + nuevoNombre + " | Descripcion: " + nuevaDesc +
+                        " | Categoria: " + nuevaCategoria + " | Color: " + nuevoColor + " | Talla: " + nuevaTalla + " | Precio: " + nuevoPrecio;
+                writer.write(nuevaLinea);
+                writer.newLine();
+            } else {
+                // Escribir la línea sin cambios si no es el producto a modificar
+                writer.write(linea);
+                writer.newLine();
+            }
+        }
+    }
+
+    if (!buscado) {
+        System.out.println("--Producto no encontrado--");
+        ArchTemp.delete();  // Borrar el archivo temporal si no se encontró el producto
+    } else {
+        // Reemplazar el archivo original con el archivo temporal
+        if (Producto.delete() && ArchTemp.renameTo(Producto)) {
+            System.out.println("--El producto fue modificado exitosamente--");
+        } else {
+            System.out.println("--Error al modificar el producto--");
+        }
+    }
+}
+         
+         
+         
+         
+         
+         public static void entradaProducto(Scanner scan, File Producto) throws IOException {
+    System.out.println("Ingrese el codigo del producto para registrar su entrada:");
+    String codeInput = scan.nextLine().trim();
+    
+    int code;
+    try {
+        code = Integer.parseInt(codeInput);
+    } catch (NumberFormatException e) {
+        System.out.println("El codigo ingresado no es un numero entero.");
+        return;
+    }
+    
+    boolean productoEncontrado = false;
+    File ArchTemp = new File("ArchTemp.txt");
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(Producto));
+         BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp))) {
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            if (linea.contains("Codigo: " + code)) {
+                productoEncontrado = true;
+                System.out.println("Producto encontrado: " + linea);
+                System.out.println("Ingrese la cantidad de productos a agregar al stock:");
+                int cantidadAgregar = scan.nextInt();
+                scan.nextLine();  // Limpiar el buffer
+
+                // Actualizar la cantidad en la línea
+                String[] partes = linea.split("\\|");
+                
+                // Buscar el campo "Stock:" para actualizar su valor
+                for (int i = 0; i < partes.length; i++) {
+                    if (partes[i].trim().startsWith("Stock:")) {
+                        int stockActual = Integer.parseInt(partes[i].replace("Stock:", "").trim());
+                        int nuevoStock = stockActual + cantidadAgregar;
+                        partes[i] = " Stock: " + nuevoStock;  // Actualizar solo el stock
+                    }
+                }
+
+                // Reescribir la línea con el stock actualizado
+                String nuevaLinea = String.join(" | ", partes);
+                writer.write(nuevaLinea);
+                writer.newLine();
+                System.out.println("Stock actualizado correctamente.");
+            } else {
+                writer.write(linea);
+                writer.newLine();
+            }
+        }
+    }
+
+    if (!productoEncontrado) {
+        System.out.println("Producto no encontrado.");
+        ArchTemp.delete();
+    } else {
+        // Reemplazar el archivo original con el actualizado
+        if (Producto.delete() && ArchTemp.renameTo(Producto)) {
+            System.out.println("Registro de entrada completado.");
+        } else {
+            System.out.println("Error al actualizar el archivo de productos.");
+        }
+    }
+}
+               
+public static void registrarSalida(Scanner scan, File Producto) throws IOException {
+    System.out.println("Ingrese el codigo del producto para registrar la salida:");
+    String codeInput = scan.nextLine().trim();
+    
+    int code;
+    try {
+        code = Integer.parseInt(codeInput);
+    } catch (NumberFormatException e) {
+        System.out.println("El codigo ingresado no es un numero entero.");
+        return;
+    }
+    
+    boolean productoEncontrado = false;
+    File ArchTemp = new File("ArchTemp.txt");
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(Producto));
+         BufferedWriter writer = new BufferedWriter(new FileWriter(ArchTemp))) {
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            if (linea.contains("Codigo: " + code)) {
+                productoEncontrado = true;
+                System.out.println("Producto encontrado: " + linea);
+                System.out.println("Ingrese la cantidad de productos a vender:");
+                int cantidad = scan.nextInt();
+                scan.nextLine();  // Limpiar el buffer
+
+                // Actualizar la cantidad en la linea
+                String[] partes = linea.split("\\|");
+                int stockAct = Integer.parseInt(partes[partes.length - 1].trim().replace("Stock: ", ""));
+                
+                if (cantidad > stockAct) {
+                    System.out.println("No hay suficiente stock para realizar la venta.");
+                    writer.write(linea);  // Escribir la linea sin cambios
+                } else {
+                    int nuevoStock = stockAct - cantidad;
+                    partes[partes.length - 1] = " Stock: " + nuevoStock;
+
+                    // Reescribir la linea con el stock actualizado
+                    String nuevaLinea = String.join(" | ", partes);
+                    writer.write(nuevaLinea);
+                    writer.newLine();
+                    System.out.println("Salida del producto realizada correctamente.");
+                    
+                    // Aqui puedes añadir codigo para generar un registro de la venta con fecha y hora.
+                }
+            } else {
+                writer.write(linea);
+                writer.newLine();
+            }
+        }
+    }
+
+    if (!productoEncontrado) {
+        System.out.println("Producto no encontrado.");
+        ArchTemp.delete();
+    } else {
+        // Reemplazar el archivo original con el actualizado
+        if (Producto.delete() && ArchTemp.renameTo(Producto)) {
+            System.out.println("Registro de salida completado.");
+        } else {
+            System.out.println("Error al actualizar el archivo de productos.");
+        }
+    }
+    }
+
+   
+}
+                                                                        
+
             
 
 

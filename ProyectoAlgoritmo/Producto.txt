@@ -1,2 +1,0 @@
-1 | Nombre: Xbox 360 | Descripcion: Electronico gamer | Categoria: Electronicos | Color: blanco | Talla: ??? | Precio: 1600
-1 | Nombre: Xbox 360 | Descripcion: Hola | Categoria: Electronicos | Color: yellow | Talla: ??? | Precio: 1600
