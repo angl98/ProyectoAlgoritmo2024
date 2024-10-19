@@ -15,6 +15,7 @@
                     <compilerArgs>
                         <arg>--enable-preview</arg>
                     </compilerArgs>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
         </plugins>
